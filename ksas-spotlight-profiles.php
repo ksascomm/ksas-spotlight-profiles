@@ -346,6 +346,9 @@ function my_manage_profile_columns( $column, $post_id ) {
 }
 
 /*************Profile Widget*****************/
+	/**
+	 * Register widget with WordPress.
+	 */
 class Profile_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_options  = array(
@@ -360,7 +363,16 @@ class Profile_Widget extends WP_Widget {
 		parent::__construct( 'ksas_profile-widget', __( 'Profile/Spotlight', 'ksas_profile' ), $widget_options, $control_options );
 	}
 
-	/** Update/Save the widget settings. */
+	/**
+	  * Sanitize widget form values as they are saved.
+	  *
+	  * @see WP_Widget::update()
+	  *
+	  * @param array $new_instance Values just sent to be saved.
+	  * @param array $old_instance Previously saved values from database.
+	  *
+	  * @return array Updated safe values to be saved.
+	  */
 	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
@@ -373,7 +385,13 @@ class Profile_Widget extends WP_Widget {
 		return $instance;
 	}
 
-	/** Widget Options */
+	/**
+	 * Back-end widget form.
+	 *
+	 * @see WP_Widget::form()
+	 *
+	 * @param array $instance Previously saved values from database.
+	 */
 	public function form( $instance ) {
 
 		/* Set up some default widget settings. */
@@ -394,7 +412,7 @@ class Profile_Widget extends WP_Widget {
 		<!-- Choose Profile Type: Select Box -->
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'category_choice' ) ); ?>"><?php _e( 'Choose Testimonial Type:', 'ksas_testimonial' ); ?></label> 
-			<select id="<?php echo esc_attr( $this->get_field_id( 'category_choice' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'category_choice' ) ); ?>" class="widefat" style="width:100%;">
+			<select id="<?php echo esc_attr( $this->get_field_id( 'category_choice' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'category_choice' ) ); ?>[]" class="widefat" style="width:100%;" multiple='multiple'>
 			<?php
 			global $wpdb;
 				$categories = get_categories(
@@ -446,13 +464,21 @@ class Profile_Widget extends WP_Widget {
 		<?php
 	}
 
-	/** Widget Display */
+	/**
+	 * Front-end display of widget.
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Saved values from database.
+	 */
 	public function widget( $args, $instance ) {
 		/* Our variables from the widget settings. */
-		$title           = isset( $instance['title'] ) ? apply_filters( 'widget_title', $instance['title'] ) : '';
-		$category_choice = isset( $instance['category_choice'] ) ? $instance['category_choice'] : '';
-		$random          = isset( $instance['random'] ) ? $instance['random'] : '';
-		$archive_link    = isset( $instance['link'] ) ? $instance['link'] : '';
+		$title               = isset( $instance['title'] ) ? apply_filters( 'widget_title', $instance['title'] ) : '';
+		$category_choice     = isset( $instance['category_choice'] ) ? $instance['category_choice'] : '';
+		$acf_category_choice = get_field( 'choose_profile_type' );
+		$random              = isset( $instance['random'] ) ? $instance['random'] : '';
+		$archive_link        = isset( $instance['link'] ) ? $instance['link'] : '';
 		echo $args['before_widget'];
 
 		/* Display the widget title if one was input (before and after defined by themes). */
@@ -477,16 +503,17 @@ class Profile_Widget extends WP_Widget {
 				?>
 				<article class="row" aria-labelledby="post-<?php the_ID(); ?>" >	
 					<div class="small-12 columns">
-						<?php
-						if ( has_post_thumbnail() ) {
-							the_post_thumbnail(
-								'directory',
-								array(
-									'class' => 'floatleft',
-									'alt'   => get_the_title(),
-								)
-							); }
-						?>
+					<?php
+					if ( has_post_thumbnail() ) {
+						the_post_thumbnail(
+							'medium',
+							array(
+								'class' => 'floatleft',
+								'alt'   => get_the_title(),
+							)
+						); }
+					?>
+						<div>
 						<h5 class="spotlight-profile-title"><a href="<?php the_permalink(); ?>" id="post-<?php the_ID(); ?>" ><?php the_title(); ?><span class="link"></span></a></h5>
 						<p class="spotlight-profile-content">
 						<?php
@@ -495,18 +522,19 @@ class Profile_Widget extends WP_Widget {
 						} else {
 							echo wp_trim_words( get_the_excerpt(), 35, '...' ); }
 						?>
+						</div>
 						</p>
 					</div>
 				</article>
-				<?php endwhile; ?>
+					<?php endwhile; ?>
 		<article aria-label="spotlight archives">
 			<p class="view-more-link">
 				<a href="<?php echo ( esc_url( $archive_link ) ); ?>">View more Spotlights <span class="fa fa-chevron-circle-right" aria-hidden="true"></span></a>
 			</p>
 		</article>
-			<?php
+				<?php
 	endif;
-		echo $args['after_widget'];
+			echo $args['after_widget'];
 	}
 
 }
@@ -616,7 +644,10 @@ if ( function_exists( 'acf_add_local_field_group' ) ) :
 endif;
 
 
-/* Add ACF field group for Profile Taxonomy select for template spotlight-profiles.php  */
+/*
+ Add ACF field group for Profile Taxonomy select for template spotlight-profiles.php
+* and Widget
+*/
 
 if ( function_exists( 'acf_add_local_field_group' ) ) :
 
@@ -668,5 +699,5 @@ if ( function_exists( 'acf_add_local_field_group' ) ) :
 			'show_in_rest'          => 0,
 		)
 	);
-
 endif;
+
