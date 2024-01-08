@@ -364,15 +364,15 @@ class Profile_Widget extends WP_Widget {
 	}
 
 	/**
-	  * Sanitize widget form values as they are saved.
-	  *
-	  * @see WP_Widget::update()
-	  *
-	  * @param array $new_instance Values just sent to be saved.
-	  * @param array $old_instance Previously saved values from database.
-	  *
-	  * @return array Updated safe values to be saved.
-	  */
+	 * Sanitize widget form values as they are saved.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance Values just sent to be saved.
+	 * @param array $old_instance Previously saved values from database.
+	 *
+	 * @return array Updated safe values to be saved.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
@@ -412,7 +412,7 @@ class Profile_Widget extends WP_Widget {
 		<!-- Choose Profile Type: Select Box -->
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'category_choice' ) ); ?>"><?php _e( 'Choose Testimonial Type:', 'ksas_testimonial' ); ?></label> 
-			<select id="<?php echo esc_attr( $this->get_field_id( 'category_choice' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'category_choice' ) ); ?>[]" class="widefat" style="width:100%;" multiple='multiple'>
+			<select id="<?php echo esc_attr( $this->get_field_id( 'category_choice' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'category_choice' ) ); ?>" class="widefat" style="width:100%;">
 			<?php
 			global $wpdb;
 				$categories = get_categories(
@@ -700,4 +700,3 @@ if ( function_exists( 'acf_add_local_field_group' ) ) :
 		)
 	);
 endif;
-
