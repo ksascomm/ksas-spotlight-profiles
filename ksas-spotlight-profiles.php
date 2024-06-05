@@ -3,7 +3,7 @@
  * Plugin Name: KSAS Student/Faculty Profiles and Spotlights
  * Plugin URI: http://krieger.jhu.edu/
  * Description: Creates a custom post type for profiles.  Link to http://siteurl/profiles/*profiketype-slug* to display profile archive.  Plugin also creates a widget to display a random profile by type in the sidebar. Widget displays thumbnail and pull quote. If no pull quote exists it displays the excerpt.
- * Version: 4.0
+ * Version: 5.0
  * Author: KSAS Communications
  * Author URI: mailto:ksasweb@jhu.edu
  * License: GPL2
@@ -501,37 +501,44 @@ class Profile_Widget extends WP_Widget {
 			while ( $profile_widget_query->have_posts() ) :
 				$profile_widget_query->the_post();
 				?>
-				<article class="row" aria-labelledby="post-<?php the_ID(); ?>" >	
-					<div class="small-12 columns">
+				<p>
+					<?php
+					if ( get_post_meta( $post->ID, 'ecpt_pull_quote', true ) ) {
+						echo esc_html( get_post_meta( $post->ID, 'ecpt_pull_quote', true ) );
+					} else {
+						echo wp_trim_words( get_the_excerpt(), 35, '...' ); }
+					?>
+				</p>
+				<div class="spotlight-image-meta">
 					<?php
 					if ( has_post_thumbnail() ) {
 						the_post_thumbnail(
 							'medium',
 							array(
-								'class' => 'floatleft',
+								'class' => '',
 								'alt'   => get_the_title(),
 							)
 						); }
 					?>
-						<div>
-						<h5 class="spotlight-profile-title"><a href="<?php the_permalink(); ?>" id="post-<?php the_ID(); ?>" ><?php the_title(); ?><span class="link"></span></a></h5>
-						<p class="spotlight-profile-content">
-						<?php
-						if ( get_post_meta( $post->ID, 'ecpt_pull_quote', true ) ) {
-							echo esc_html( get_post_meta( $post->ID, 'ecpt_pull_quote', true ) );
-						} else {
-							echo wp_trim_words( get_the_excerpt(), 35, '...' ); }
-						?>
-						</div>
-						</p>
+					<div class="spotlight-author">
+						<h3><a href="<?php the_permalink(); ?>" id="post-<?php the_ID(); ?>" ><?php the_title(); ?></a></h3>
+						<?php if ( have_rows( 'custom_profile_fields' ) ) : ?>
+							<?php
+							while ( have_rows( 'custom_profile_fields' ) ) :
+								the_row();
+								?>
+							<span class="custom-title"><?php the_sub_field( 'custom_title' ); ?></span>&nbsp;<span class="custom-content"><?php the_sub_field( 'custom_content' ); ?></span>
+							<?php endwhile; ?>
+						<?php else : ?>
+							<?php // No rows found! ?>
+						<?php endif; ?>
 					</div>
-				</article>
-					<?php endwhile; ?>
-		<article aria-label="spotlight archives">
+				</div>
+			<?php endwhile; ?>
+
 			<p class="view-more-link">
-				<a href="<?php echo ( esc_url( $archive_link ) ); ?>">View more Spotlights <span class="fa fa-chevron-circle-right" aria-hidden="true"></span></a>
+				<a href="<?php echo ( esc_url( $archive_link ) ); ?>">View more <?php echo $title; ?> <span class="fa fa-chevron-circle-right" aria-hidden="true"></span></a>
 			</p>
-		</article>
 				<?php
 	endif;
 			echo $args['after_widget'];
