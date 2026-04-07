@@ -87,7 +87,7 @@ class Spotlight_Profiles_Widget extends WP_Widget {
 								while ( have_rows( 'custom_profile_fields' ) ) :
 									the_row();
 									?>
-									<span class="custom-title"><?php the_sub_field( 'custom_title' ); ?>:</span> 
+									<span class="custom-title"><?php the_sub_field( 'custom_title' ); ?></span> 
 									<span class="custom-content"><?php the_sub_field( 'custom_content' ); ?></span><br>
 								<?php endwhile; ?>
 							<?php endif; ?>
